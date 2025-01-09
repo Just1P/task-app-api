@@ -3,10 +3,14 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt'
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly jwtService: JwtService 
+    ) {}
 
     async signin(signinDto: SigninDto) {
       
@@ -21,7 +25,13 @@ export class AuthService {
           throw new UnauthorizedException('Invalid credentials');
         }
 
-        return "I'm signed in" ;
+        const payload = {
+            id: user.id,
+        }
+
+        const acces_token = await this.jwtService.sign(payload)
+
+        return { acces_token} ;
       }
       
     async signup(signupDto: SignupDto) {

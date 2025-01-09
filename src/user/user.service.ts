@@ -14,8 +14,6 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const user = await this.userRepository.save(createUserDto);
 
-    delete user.password
-
     return user;
   }
 
@@ -27,8 +25,6 @@ export class UserService {
     const user = await this.userRepository
     .createQueryBuilder('user')
     .where('user.id = :id', {id})
-      //exclude password
-    .addSelect('user.password', 'password')
     .getOne();
 
     if(!user) {
@@ -42,6 +38,7 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
+      .addSelect('user.password')
       .getOne();
   
     if (!user) {
