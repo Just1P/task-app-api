@@ -23,7 +23,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOneById(id: number) {
     const user = await this.userRepository
     .createQueryBuilder('user')
     .where('user.id = :id', {id})
@@ -38,12 +38,22 @@ export class UserService {
     return user;
   }
 
+  async findOneByEmail(email: string): Promise<UserEntity> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .getOne();
+  
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    return user;
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
   
-    // await this.userRepository.update(id, updateUserDto);
-  
-    // return await this.findOne(id);
-    const user = await this.findOne(id);
+    const user = await this.findOneById(id);
 
     const updateUser= {
       ...user, 
@@ -56,7 +66,7 @@ export class UserService {
   }
 
   async remove(id: number): Promise<any> {
-    await this.findOne(id);
+    await this.findOneById(id);
 
     return this.userRepository.softDelete(id);
   }
